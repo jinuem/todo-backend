@@ -4,7 +4,7 @@ const fs = require('fs');
 const path = require('path');
 
 const app = express();
-const PORT = 5000;
+const PORT = process.env.PORT || 5001;
 const TODOS_FILE = path.join(__dirname, 'todos.json');
 
 app.use(cors({ origin: 'http://localhost:3000' }));
