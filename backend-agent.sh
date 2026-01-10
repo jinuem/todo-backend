@@ -2,12 +2,15 @@
 
 # Backend Agent - Monitors requirements repo and develops Express backend
 
-REQUIREMENTS_REPO="../todo-requirements"
-BACKEND_REPO="."
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+REQUIREMENTS_REPO="$SCRIPT_DIR/../todo-requirements"
+BACKEND_REPO="$SCRIPT_DIR"
 AGENT_NAME="Auto Backend Agent"
 SERVICE_STARTED=false
 
 echo "[$AGENT_NAME] Starting automated monitoring..."
+echo "[$AGENT_NAME] Working in: $BACKEND_REPO"
+echo "[$AGENT_NAME] Monitoring: $REQUIREMENTS_REPO"
 
 while true; do
     cd "$REQUIREMENTS_REPO"
@@ -24,6 +27,8 @@ while true; do
         
         cd "$BACKEND_REPO"
         git pull origin init >/dev/null 2>&1
+        
+        echo "[$AGENT_NAME] Working directory: $(pwd)"
         
         # Auto-run Kiro CLI
         cat << 'EOF' | kiro-cli chat --non-interactive --trust-all-tools
@@ -44,6 +49,9 @@ Tasks:
 6. Commit your changes with message \"Backend Agent: Auto-update from requirements\"
 
 Work efficiently and commit when done.
+
+IMPORTANT: You are working in the todo-backend repository. 
+Update the existing Express application in the current directory.
 
 After completing the work, start the backend server in a new terminal:
 - Open new terminal for backend service
