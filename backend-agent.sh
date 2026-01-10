@@ -49,7 +49,7 @@ EOF
         cd "$REQUIREMENTS_REPO"
         
         # Update current turn back to frontend
-        sed -i '' 's/Current Turn.*/Current Turn\n**FRONTEND** - Waiting for PRD changes/' COLLABORATION.md
+        sed -i '' 's/**BACKEND**.*/\*\*FRONTEND\*\* - Waiting for PRD changes/' COLLABORATION.md
         
         # Add completion log
         echo "" >> COLLABORATION.md
