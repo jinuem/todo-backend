@@ -49,53 +49,80 @@ app.get('/api/todos', (req, res) => {
 // POST /api/todos - Add new todo
 app.post('/api/todos', (req, res) => {
   const { title } = req.body;
-  if (!title) {
+  if (!title || title.trim() === '') {
     return res.status(400).json({ error: 'Title is required' });
   }
   
-  const todos = readTodos();
-  const newTodo = {
-    id: Date.now(),
-    title,
-    completed: false
-  };
-  
-  todos.push(newTodo);
-  writeTodos(todos);
-  res.status(201).json(newTodo);
+  try {
+    const todos = readTodos();
+    const newTodo = {
+      id: Date.now(),
+      title: title.trim(),
+      completed: false
+    };
+    
+    todos.push(newTodo);
+    writeTodos(todos);
+    res.status(201).json(newTodo);
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to create todo' });
+  }
 });
 
 // PUT /api/todos/:id - Update todo (toggle completion or edit title)
 app.put('/api/todos/:id', (req, res) => {
   const id = parseInt(req.params.id);
   const { title, completed } = req.body;
-  const todos = readTodos();
-  const todo = todos.find(t => t.id === id);
   
-  if (!todo) {
-    return res.status(404).json({ error: 'Todo not found' });
+  if (isNaN(id)) {
+    return res.status(400).json({ error: 'Invalid todo ID' });
   }
   
-  if (title !== undefined) todo.title = title;
-  if (completed !== undefined) todo.completed = completed;
-  
-  writeTodos(todos);
-  res.json(todo);
+  try {
+    const todos = readTodos();
+    const todo = todos.find(t => t.id === id);
+    
+    if (!todo) {
+      return res.status(404).json({ error: 'Todo not found' });
+    }
+    
+    if (title !== undefined) {
+      if (title.trim() === '') {
+        return res.status(400).json({ error: 'Title cannot be empty' });
+      }
+      todo.title = title.trim();
+    }
+    if (completed !== undefined) todo.completed = completed;
+    
+    writeTodos(todos);
+    res.json(todo);
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to update todo' });
+  }
 });
 
 // DELETE /api/todos/:id - Delete todo
 app.delete('/api/todos/:id', (req, res) => {
   const id = parseInt(req.params.id);
-  const todos = readTodos();
-  const index = todos.findIndex(t => t.id === id);
   
-  if (index === -1) {
-    return res.status(404).json({ error: 'Todo not found' });
+  if (isNaN(id)) {
+    return res.status(400).json({ error: 'Invalid todo ID' });
   }
   
-  todos.splice(index, 1);
-  writeTodos(todos);
-  res.status(204).send();
+  try {
+    const todos = readTodos();
+    const index = todos.findIndex(t => t.id === id);
+    
+    if (index === -1) {
+      return res.status(404).json({ error: 'Todo not found' });
+    }
+    
+    todos.splice(index, 1);
+    writeTodos(todos);
+    res.status(204).send();
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to delete todo' });
+  }
 });
 
 // Error handling middleware
