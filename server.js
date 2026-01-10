@@ -10,6 +10,11 @@ const TODOS_FILE = path.join(__dirname, 'todos.json');
 app.use(cors({ origin: 'http://localhost:3000' }));
 app.use(express.json());
 
+// Health check endpoint
+app.get('/api/health', (req, res) => {
+  res.json({ status: 'OK', timestamp: new Date().toISOString() });
+});
+
 // Initialize todos file if it doesn't exist
 if (!fs.existsSync(TODOS_FILE)) {
   fs.writeFileSync(TODOS_FILE, JSON.stringify([]));
