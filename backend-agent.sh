@@ -15,11 +15,15 @@ while true; do
     cd "$REQUIREMENTS_REPO"
     git pull origin init >/dev/null 2>&1
     
+    # Debug: Show current turn status
+    CURRENT_TURN_LINE=$(grep -A1 "Current Turn" COLLABORATION.md)
+    echo "[$AGENT_NAME] Current turn status: $CURRENT_TURN_LINE"
+    
     # Check if it's backend's turn
-    CURRENT_TURN=$(grep "Current Turn" COLLABORATION.md | grep "BACKEND")
+    CURRENT_TURN=$(grep -A1 "Current Turn" COLLABORATION.md | grep "BACKEND")
     
     if [[ -n "$CURRENT_TURN" ]]; then
-        echo "[$AGENT_NAME] My turn! Processing PRD requirements..."
+        echo "[$AGENT_NAME] My turn detected! Processing PRD requirements..."
         
         PRD_CONTENT=$(cat PRD.md)
         
@@ -66,5 +70,5 @@ EOF
         echo "[$AGENT_NAME] Task completed. Waiting for next PRD update."
     fi
     
-    sleep 20
+    sleep 10
 done
