@@ -1,14 +1,13 @@
 #!/bin/bash
 
-# Backend Agent - Monitors requirements repo and develops Express backend
+# Backend Agent - Sequential workflow with PRD monitoring
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REQUIREMENTS_REPO="$SCRIPT_DIR/../todo-requirements"
 BACKEND_REPO="$SCRIPT_DIR"
-AGENT_NAME="Auto Backend Agent"
-SERVICE_STARTED=false
+AGENT_NAME="Backend Agent"
 
-echo "[$AGENT_NAME] Starting automated monitoring..."
+echo "[$AGENT_NAME] Starting sequential monitoring..."
 echo "[$AGENT_NAME] Working in: $BACKEND_REPO"
 echo "[$AGENT_NAME] Monitoring: $REQUIREMENTS_REPO"
 
@@ -16,67 +15,56 @@ while true; do
     cd "$REQUIREMENTS_REPO"
     git pull origin init >/dev/null 2>&1
     
-    LAST_COMMIT=$(git log -1 --format="%H")
-    CHANGED_FILES=$(git diff-tree --no-commit-id --name-only -r $LAST_COMMIT 2>/dev/null || echo "")
+    # Check if it's backend's turn
+    CURRENT_TURN=$(grep "Current Turn" COLLABORATION.md | grep "BACKEND")
     
-    if [[ "$CHANGED_FILES" == *"PRD.md"* ]] || [[ "$CHANGED_FILES" == *"COLLABORATION.md"* ]]; then
-        echo "[$AGENT_NAME] Requirements updated! Auto-processing..."
+    if [[ -n "$CURRENT_TURN" ]]; then
+        echo "[$AGENT_NAME] My turn! Processing PRD requirements..."
         
         PRD_CONTENT=$(cat PRD.md)
-        COLLAB_CONTENT=$(cat COLLABORATION.md)
         
         cd "$BACKEND_REPO"
         git pull origin init >/dev/null 2>&1
         
-        echo "[$AGENT_NAME] Working directory: $(pwd)"
-        
-        # Auto-run Kiro CLI
-        cat << 'EOF' | kiro-cli chat --non-interactive --trust-all-tools
-You are the Backend Agent. Based on these requirements, develop/update the Express backend:
+        # Execute Kiro CLI with PRD content
+        cat << EOF | kiro-cli chat --non-interactive --trust-all-tools
+You are the Backend Agent. Implement the Express backend based on PRD requirements:
 
-REQUIREMENTS:
+PRD REQUIREMENTS:
 $PRD_CONTENT
 
-COLLABORATION LOG:
-$COLLAB_CONTENT
-
 Tasks:
-1. Create/update Express server and API endpoints
-2. Implement CRUD operations for todos
-3. Set up database integration (use JSON file for now)
-4. Add CORS and error handling
-5. Ensure API matches frontend needs
-6. Commit your changes with message \"Backend Agent: Auto-update from requirements\"
+1. Create/update Express server matching PRD API specifications
+2. Implement all CRUD endpoints as defined in PRD
+3. Set up JSON file storage as specified
+4. Add proper CORS and error handling
+5. Ensure API matches frontend integration needs
+6. Add unit tests as specified in PRD
+7. Commit and push all changes with message "Backend Agent: Implemented PRD requirements"
 
-Work efficiently and commit when done.
-
-IMPORTANT: You are working in the todo-backend repository. 
-Update the existing Express application in the current directory.
-
-DO NOT start any services - the developer will run them manually.
+CRITICAL: Follow PRD as single source of truth. Work in current directory.
 EOF
-
-        # Start backend service in new terminal after code update (only once)
-        if [ "$SERVICE_STARTED" = false ]; then
-            echo "[$AGENT_NAME] Code updated - developer will start service manually"
-            SERVICE_STARTED=true
-        else
-            echo "[$AGENT_NAME] Code updated - service management by developer"
-        fi
         
-        # Update collaboration log
+        # Update collaboration log and reset turn to frontend
         cd "$REQUIREMENTS_REPO"
+        
+        # Update current turn back to frontend
+        sed -i '' 's/Current Turn.*/Current Turn\n**FRONTEND** - Waiting for PRD changes/' COLLABORATION.md
+        
+        # Add completion log
         echo "" >> COLLABORATION.md
         echo "### [$(date '+%Y-%m-%d %H:%M')] - $AGENT_NAME" >> COLLABORATION.md
-        echo "- Auto-processed requirements change" >> COLLABORATION.md
-        echo "- Updated backend API" >> COLLABORATION.md
+        echo "- Processed PRD requirements" >> COLLABORATION.md
+        echo "- Implemented backend API" >> COLLABORATION.md
+        echo "- Committed and pushed changes" >> COLLABORATION.md
+        echo "- Ready for next PRD update" >> COLLABORATION.md
         
         git add COLLABORATION.md
-        git commit -m "$AGENT_NAME: Auto-processed requirements" >/dev/null 2>&1
+        git commit -m "$AGENT_NAME: Completed task, ready for next cycle" >/dev/null 2>&1
         git push origin init >/dev/null 2>&1
         
-        echo "[$AGENT_NAME] Completed auto-update cycle"
+        echo "[$AGENT_NAME] Task completed. Waiting for next PRD update."
     fi
     
-    sleep 15
+    sleep 20
 done
