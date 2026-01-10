@@ -17,12 +17,22 @@ if (!fs.existsSync(TODOS_FILE)) {
 
 // Helper functions
 const readTodos = () => {
-  const data = fs.readFileSync(TODOS_FILE, 'utf8');
-  return JSON.parse(data);
+  try {
+    const data = fs.readFileSync(TODOS_FILE, 'utf8');
+    return JSON.parse(data);
+  } catch (error) {
+    console.error('Error reading todos:', error);
+    return [];
+  }
 };
 
 const writeTodos = (todos) => {
-  fs.writeFileSync(TODOS_FILE, JSON.stringify(todos, null, 2));
+  try {
+    fs.writeFileSync(TODOS_FILE, JSON.stringify(todos, null, 2));
+  } catch (error) {
+    console.error('Error writing todos:', error);
+    throw error;
+  }
 };
 
 // GET /api/todos - Get all todos
