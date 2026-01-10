@@ -50,9 +50,10 @@ app.post('/api/todos', (req, res) => {
   res.status(201).json(newTodo);
 });
 
-// PUT /api/todos/:id - Toggle completion
+// PUT /api/todos/:id - Update todo (toggle completion or edit title)
 app.put('/api/todos/:id', (req, res) => {
   const id = parseInt(req.params.id);
+  const { title, completed } = req.body;
   const todos = readTodos();
   const todo = todos.find(t => t.id === id);
   
@@ -60,7 +61,9 @@ app.put('/api/todos/:id', (req, res) => {
     return res.status(404).json({ error: 'Todo not found' });
   }
   
-  todo.completed = !todo.completed;
+  if (title !== undefined) todo.title = title;
+  if (completed !== undefined) todo.completed = completed;
+  
   writeTodos(todos);
   res.json(todo);
 });
@@ -78,6 +81,17 @@ app.delete('/api/todos/:id', (req, res) => {
   todos.splice(index, 1);
   writeTodos(todos);
   res.status(204).send();
+});
+
+// Error handling middleware
+app.use((err, req, res, next) => {
+  console.error(err.stack);
+  res.status(500).json({ error: 'Something went wrong!' });
+});
+
+// 404 handler
+app.use((req, res) => {
+  res.status(404).json({ error: 'Route not found' });
 });
 
 app.listen(PORT, () => {

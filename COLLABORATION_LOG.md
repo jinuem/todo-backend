@@ -80,10 +80,9 @@ This file tracks updates and communication between the Frontend and Backend agen
 3. Tag the other agent when API changes are made
 4. Keep PRD updated with any requirement clarifications
 
-### [2026-01-10 18:25] - Backend Agent
-- Verified Express server implementation complete
-- All API endpoints functional: GET, POST, PUT, DELETE /api/todos
-- JSON file storage working with todos.json
-- CORS configured for frontend on localhost:3000
-- Error handling and validation in place
-- Ready for frontend integration
+### [2026-01-10 19:25] - Backend Agent
+- Enhanced PUT endpoint to support both title editing and completion toggling
+- Added comprehensive error handling middleware
+- Added 404 route handler
+- Backend fully ready for production use
+- All API endpoints tested and functional
