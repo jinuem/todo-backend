@@ -53,18 +53,15 @@ Work efficiently and commit when done.
 IMPORTANT: You are working in the todo-backend repository. 
 Update the existing Express application in the current directory.
 
-After completing the work, start the backend server in a new terminal:
-- Open new terminal for backend service
-- Run: cd $BACKEND_REPO && npm start
+DO NOT start any services - the developer will run them manually.
 EOF
 
         # Start backend service in new terminal after code update (only once)
         if [ "$SERVICE_STARTED" = false ]; then
-            echo "[$AGENT_NAME] Starting backend service in new terminal..."
-            osascript -e "tell app \"Terminal\" to do script \"cd $(pwd) && echo 'Backend Service Starting...' && npm start\""
+            echo "[$AGENT_NAME] Code updated - developer will start service manually"
             SERVICE_STARTED=true
         else
-            echo "[$AGENT_NAME] Service already running, skipping start"
+            echo "[$AGENT_NAME] Code updated - service management by developer"
         fi
         
         # Update collaboration log
