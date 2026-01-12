@@ -27,6 +27,13 @@ while true; do
     CURRENT_TIME=$(date +%s)
     TIME_DIFF=$((CURRENT_TIME - PRD_TIMESTAMP))
     
+    # Check if both agents have completed their work
+    if ../completion-tracker.sh check; then
+        echo "[$AGENT_NAME] Both agents have completed work. PRD processing finished."
+        echo "[$AGENT_NAME] Stopping monitoring loop."
+        break
+    fi
+    
     # Check current turn
     CURRENT_TURN=$(grep "^\*\*" COLLABORATION.md | head -1 | grep -o "FRONTEND\|BACKEND")
     
@@ -62,6 +69,10 @@ EOF
         # Check if task was completed successfully
         if [ $? -eq 0 ]; then
             echo "[$AGENT_NAME] Task execution completed successfully."
+            
+            # Mark completion
+            ../completion-tracker.sh mark "Backend Agent"
+            
         else
             echo "[$AGENT_NAME] Task execution failed. Will retry on next cycle."
             sleep 15
