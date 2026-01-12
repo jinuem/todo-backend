@@ -30,8 +30,8 @@ while true; do
     # Check current turn
     CURRENT_TURN=$(grep "^\*\*" COLLABORATION.md | head -1 | grep -o "FRONTEND\|BACKEND")
     
-    # Proceed if it's our turn OR timeout exceeded (300s = 5min)
-    if [[ "$CURRENT_TURN" == "BACKEND" ]] || [[ $TIME_DIFF -gt 300 ]]; then
+    # Proceed if it's our turn OR timeout exceeded AND it's not explicitly another agent's turn
+    if [[ "$CURRENT_TURN" == "BACKEND" ]] || ([[ $TIME_DIFF -gt 300 ]] && [[ "$CURRENT_TURN" != "FRONTEND" ]]); then
         echo "[$AGENT_NAME] My turn detected! Processing PRD requirements..."
         
         PRD_CONTENT=$(cat PRD.md)
