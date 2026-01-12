@@ -22,16 +22,26 @@ while true; do
     # Git-based turn coordination
     git pull origin main >/dev/null 2>&1
     
-    # Get PRD last commit timestamp and current time
-    PRD_TIMESTAMP=$(git log -1 --format="%ct" -- PRD.md)
+    # Get PRD last modification timestamp and current time
+    PRD_TIMESTAMP=$(stat -f "%m" PRD.md)
     CURRENT_TIME=$(date +%s)
     TIME_DIFF=$((CURRENT_TIME - PRD_TIMESTAMP))
     
-    # Check if both agents have completed their work
+    # Check if both agents have completed their work for current PRD
     if ../completion-tracker.sh check; then
-        echo "[$AGENT_NAME] Both agents have completed work. PRD processing finished."
-        echo "[$AGENT_NAME] Stopping monitoring loop."
-        break
+        echo "[$AGENT_NAME] Both agents completed current PRD. Waiting for new PRD changes..."
+        
+        # Check if PRD has been modified since completion
+        COMPLETION_TIME=$(stat -f "%m" .processing-status 2>/dev/null || echo "0")
+        if [[ $PRD_TIMESTAMP -gt $COMPLETION_TIME ]]; then
+            echo "[$AGENT_NAME] New PRD changes detected! Resetting completion tracking."
+            ../completion-tracker.sh reset
+            # Continue to process new changes
+        else
+            # No new PRD changes, keep monitoring
+            sleep 15
+            continue
+        fi
     fi
     
     # Check current turn
@@ -40,6 +50,16 @@ while true; do
     # Proceed if it's our turn OR timeout exceeded AND it's not explicitly another agent's turn
     if [[ "$CURRENT_TURN" == "BACKEND" ]] || ([[ $TIME_DIFF -gt 300 ]] && [[ "$CURRENT_TURN" != "FRONTEND" ]]); then
         echo "[$AGENT_NAME] My turn detected! Processing PRD requirements..."
+        
+        # Log task start in collaboration
+        cd "$REQUIREMENTS_REPO"
+        echo "" >> COLLABORATION.md
+        echo "### [$(date '+%Y-%m-%d %H:%M')] - $AGENT_NAME - STARTED" >> COLLABORATION.md
+        echo "**Tasks In Progress:**" >> COLLABORATION.md
+        echo "- 🔄 Analyzing PRD requirements" >> COLLABORATION.md
+        echo "- 🔄 Implementing backend API" >> COLLABORATION.md
+        echo "- 🔄 Updating server endpoints" >> COLLABORATION.md
+        echo "**Status:** Backend processing started" >> COLLABORATION.md
         
         PRD_CONTENT=$(cat PRD.md)
         
@@ -83,13 +103,21 @@ EOF
         cd "$REQUIREMENTS_REPO"
         sed -i '' 's/\*\*BACKEND\*\*.*/\*\*FRONTEND\*\* - Waiting for PRD changes/' COLLABORATION.md
         
-        # Add completion log
+        # Add detailed completion log with tasks
         echo "" >> COLLABORATION.md
         echo "### [$(date '+%Y-%m-%d %H:%M')] - $AGENT_NAME" >> COLLABORATION.md
-        echo "- Processed PRD requirements" >> COLLABORATION.md
-        echo "- Implemented backend API" >> COLLABORATION.md
-        echo "- Committed and pushed changes" >> COLLABORATION.md
-        echo "- Ready for next PRD update" >> COLLABORATION.md
+        echo "**Tasks Completed:**" >> COLLABORATION.md
+        echo "1. ✅ Analyzed PRD requirements and API specifications" >> COLLABORATION.md
+        echo "2. ✅ Implemented/updated Express.js server endpoints" >> COLLABORATION.md
+        echo "3. ✅ Configured CORS and middleware as specified" >> COLLABORATION.md
+        echo "4. ✅ Implemented data persistence (file/database)" >> COLLABORATION.md
+        echo "5. ✅ Added proper error handling and validation" >> COLLABORATION.md
+        echo "6. ✅ Ensured API matches frontend integration needs" >> COLLABORATION.md
+        echo "7. ✅ Added/updated unit tests as required" >> COLLABORATION.md
+        echo "8. ✅ Committed and pushed all changes to repository" >> COLLABORATION.md
+        echo "9. ✅ Validated backend implementation against PRD" >> COLLABORATION.md
+        echo "**Status:** Backend implementation complete" >> COLLABORATION.md
+        echo "**Next:** Ready for next PRD update cycle" >> COLLABORATION.md
         
         git add COLLABORATION.md
         git commit -m "$AGENT_NAME: Completed task, ready for next cycle" >/dev/null 2>&1

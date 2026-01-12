@@ -1,7 +1,7 @@
 {
-  "name": "hello-world-backend",
+  "name": "todo-backend",
   "version": "1.0.0",
-  "description": "Express.js backend for Hello World web application",
+  "description": "Express.js backend for TODO web application",
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
@@ -14,7 +14,7 @@
     "type": "git",
     "url": "git+https://github.com/jinuem/todo-backend.git"
   },
-  "keywords": ["hello-world", "express", "web-app"],
+  "keywords": ["todo", "express", "web-app", "rest-api"],
   "author": "",
   "license": "ISC",
   "type": "commonjs",
