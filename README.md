@@ -1,6 +1,6 @@
-# TODO Backend
+# Hello World Backend
 
-Express.js backend for the TODO application as per PRD requirements.
+Express.js backend for the Hello World web application as per PRD requirements.
 
 ## Setup
 
@@ -11,13 +11,12 @@ npm start
 
 Server runs on http://localhost:4000
 
-## API Endpoints
+## Features
 
-- `GET /api/todos` - Get all todos
-- `POST /api/todos` - Create new todo
-- `PUT /api/todos/:id` - Update todo completion status
-- `DELETE /api/todos/:id` - Delete todo
+- Serves a simple HTML page displaying "Hello World"
+- Accessible via web browser
+- CORS enabled for frontend integration
 
-## Data Storage
+## Implementation
 
-Uses `todos.json` file for persistence with atomic writes.
+The server provides a single endpoint that serves an HTML page with "Hello World" text, meeting all PRD requirements for a minimal web application.
