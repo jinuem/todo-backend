@@ -6,6 +6,8 @@
   "scripts": {
     "start": "node server.js",
     "dev": "node server.js",
+    "start:bg": "./start-background.sh",
+    "stop:bg": "./stop-background.sh",
     "test": "jest"
   },
   "repository": {
